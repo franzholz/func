@@ -6,23 +6,14 @@ use TYPO3\CMS\Func\Controller\PageFunctionsController;
 
 return [
     'web_func' => [
+        'parent' => 'web_ts',
+        'access' => 'user',
         'path' => '/module/web/func',
-        'access' => 'admin',
-        'labels' => [
-            'title' => 'LLL:EXT:func/Resources/Private/Language/locallang_mod_web_func.xlf'
-        ],
-        'icon' => 'EXT:func/Resources/Public/Icons/module-func.svg',
+        'labels' => 'LLL:EXT:func/Resources/Private/Language/locallang_mod_web_func.xlf',
+        'iconIdentifier' => 'tx-func-icon',
         'routes' => [
             '_default' => [
                 'target' => PageFunctionsController::class . '::main',
-            ],
-            'edit' => [
-                'path' => '/edit-me',
-                'target' => MyModuleController::class . '::edit',
-            ],
-            'manage' => [
-                'target' => AnotherController::class . '::manage',
-                'methods' => ['POST'],
             ],
         ],
     ],
