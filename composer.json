@@ -12,6 +12,11 @@
 	"require": {
 		"typo3/cms-core": "^12.0 || ^13.0"
 	},
+	"autoload": {
+		"psr-4": {
+			"TYPO3\\CMS\\Func\\": "Classes/"
+		}
+	}
 	"replace": {
 		"friendsoftypo3/func": "*",
 		"typo3-ter/func": "*",
@@ -22,9 +27,4 @@
 			"extension-key": "func"
 		}
 	},
-	"autoload": {
-		"psr-4": {
-			"TYPO3\\CMS\\Func\\": "Classes/"
-		}
-	}
 }

@@ -16,13 +16,18 @@ namespace TYPO3\CMS\Func\Controller;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Module\ModuleInterface;
+use TYPO3\CMS\Backend\Module\ModuleProvider;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplate;
+use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 use TYPO3\CMS\Fluid\ViewHelpers\Be\InfoboxViewHelper;
 
@@ -36,42 +41,28 @@ use TYPO3\CMS\Func\Module\BaseScriptClass;
 class PageFunctionsController extends BaseScriptClass
 {
     /**
-     * @var array
-     * @internal
-     */
-    public $pageinfo;
-
-    /**
-     * ModuleTemplate Container
-     *
-     * @var ModuleTemplate
-     */
-    protected $moduleTemplate;
-
-    /**
      * The name of the module
      *
      * @var string
      */
     protected $moduleName = 'web_func';
 
-    /**
-     * @var IconFactory
-     */
-    protected $iconFactory;
-
-    /**
-     * @var StandaloneView
-     */
-    protected $view;
+    protected ModuleInterface $currentModule;
+    protected ?ModuleTemplate $view;
+    public array $pageinfo = [];
 
     /**
      * Constructor
      */
-    public function __construct()
+    public function __construct(
+        protected readonly IconFactory $iconFactory,
+        protected readonly UriBuilder $uriBuilder,
+        protected readonly ModuleProvider $moduleProvider,
+        protected readonly PageRenderer $pageRenderer,
+        protected readonly ModuleTemplateFactory $moduleTemplateFactory,
+        protected readonly EventDispatcherInterface $eventDispatcher,
+    )
     {
-        $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-        $this->moduleTemplate = GeneralUtility::makeInstance(ModuleTemplate::class);
         $this->getLanguageService()->includeLLFile('EXT:func/Resources/Private/Language/locallang_mod_web_func.xlf');
         $this->MCONF = [
             'name' => $this->moduleName,
@@ -99,8 +90,7 @@ class PageFunctionsController extends BaseScriptClass
 
         $this->moduleTemplate->setContent($this->content);
 
-        $response = new HtmlResponse($this->moduleTemplate->renderContent());
-        return $response;
+        return $this->pageRenderer->renderResponse();
     }
 
     /**
@@ -115,8 +105,7 @@ class PageFunctionsController extends BaseScriptClass
             $this->moduleTemplate->getDocHeaderComponent()->setMetaInformation($this->pageinfo);
         }
         $access = is_array($this->pageinfo);
-        // We keep this here, in case somebody relies on the old doc being here
-        $this->doc = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Backend\Template\DocumentTemplate::class);
+
         // Main
         if ($this->id && $access) {
             // JavaScript
