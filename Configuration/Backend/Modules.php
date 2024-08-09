@@ -6,7 +6,7 @@ use TYPO3\CMS\Func\Controller\PageFunctionsController;
 
 return [
     'web_func' => [
-        'parent' => 'web_ts',
+        'parent' => 'web',
         'access' => 'user',
         'path' => '/module/web/func',
         'labels' => 'LLL:EXT:func/Resources/Private/Language/locallang_mod_web_func.xlf',
